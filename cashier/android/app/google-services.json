@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "343958666925",
+    "project_id": "cashier-ea96e",
+    "storage_bucket": "cashier-ea96e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343958666925:android:80e786f6fdd788411e5024",
+        "android_client_info": {
+          "package_name": "com.smile675.cashier"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "343958666925-r2fphnicr9nvh68h72tmv3fl24b5kaj9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRpNvkflWDoquM03C-RPzYklIBwWflLvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "343958666925-r2fphnicr9nvh68h72tmv3fl24b5kaj9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
