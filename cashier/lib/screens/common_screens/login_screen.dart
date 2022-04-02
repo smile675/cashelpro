@@ -17,20 +17,11 @@ class LoginBranch extends StatefulWidget {
 }
 
 class _LoginBranchState extends State<LoginBranch> {
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-  late final TextEditingController _emailreset;
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _emailreset = TextEditingController();
 
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
-    _emailreset = TextEditingController();
-
-    super.initState();
-  }
 
   @override
   void dispose() {

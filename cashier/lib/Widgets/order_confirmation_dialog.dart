@@ -508,7 +508,9 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
               _paidAmount = double.parse(value);
               setState(() {
                 _changeAmount = _paidAmount - widget.cart.totalAmount;
-                _readyToSubmit = true;
+                if (_changeAmount >= 0) {
+                  _readyToSubmit = true;
+                }
               });
             }),
             controller: _amountInput,
@@ -544,7 +546,9 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
         setState(() {
           _paidAmount = _inputAmount;
           _changeAmount = _paidAmount - widget.cart.totalAmount;
-          _readyToSubmit = true;
+          if (_changeAmount >= 0) {
+            _readyToSubmit = true;
+          }
         });
       },
       child: Container(

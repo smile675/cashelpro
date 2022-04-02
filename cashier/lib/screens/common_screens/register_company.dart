@@ -17,28 +17,15 @@ class RegisterCompany extends StatefulWidget {
 }
 
 class _RegisterCompanyState extends State<RegisterCompany> {
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-  late final TextEditingController _companyName;
-  late final TextEditingController _hqLocation;
-  late final TextEditingController _phoneNumber;
-  late final TextEditingController _fullAddress;
-  late final TextEditingController _currency;
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _companyName = TextEditingController();
+  final TextEditingController _hqLocation = TextEditingController();
+  final TextEditingController _phoneNumber = TextEditingController();
+  final TextEditingController _fullAddress = TextEditingController();
+  final TextEditingController _currency = TextEditingController();
 
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
-    _companyName = TextEditingController();
-    _hqLocation = TextEditingController();
-    _phoneNumber = TextEditingController();
-    _fullAddress = TextEditingController();
-    _currency = TextEditingController();
-
-    super.initState();
-  }
 
   @override
   void dispose() {

@@ -165,8 +165,8 @@ class _SelectProductState extends State<SelectProduct> {
                           itemCount: _products.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
                             crossAxisCount: 5,
                           ),
                           itemBuilder: (context, index) {
@@ -174,7 +174,7 @@ class _SelectProductState extends State<SelectProduct> {
                             String _productSubTitle = _products[index].subTitle;
                             String _productId = _products[index].id;
                             double _productPrice = _products[index].price;
-                            Color _textColor = Colors.black87;
+
                             Company _company =
                                 Provider.of<CompanyProvider>(context)
                                     .getCompany;
@@ -196,25 +196,25 @@ class _SelectProductState extends State<SelectProduct> {
                                     padding: const EdgeInsets.all(5.0),
                                     child: Column(
                                       children: [
-                                        FittedBox(
-                                            child: Text(
-                                          '${_company.currencyCode.toUpperCase()} ${(_productPrice).toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                              color: _textColor,
-                                              fontWeight: FontWeight.bold),
-                                        )),
                                         Expanded(
                                           child: Center(
                                             child: Text(
                                               _productTitle,
-                                              style: TextStyle(
-                                                color: _textColor,
+                                              style: const TextStyle(
+                                                color: Colors.black87,
                                               ),
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.fade,
                                             ),
                                           ),
                                         ),
+                                        FittedBox(
+                                            child: Text(
+                                          '${_company.currencyCode.toUpperCase()} ${(_productPrice).toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                              color: Colors.teal,
+                                              fontWeight: FontWeight.bold),
+                                        )),
                                       ],
                                     ),
                                   ),

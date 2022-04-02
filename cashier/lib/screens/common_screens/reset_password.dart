@@ -12,7 +12,7 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  TextEditingController _emailreset = TextEditingController();
+  final TextEditingController _emailreset = TextEditingController();
 
   bool _isLoading = false;
 

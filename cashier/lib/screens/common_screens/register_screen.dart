@@ -204,22 +204,12 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-  late final TextEditingController _brancName;
-  late final TextEditingController _branchLocation;
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _brancName = TextEditingController();
+  final TextEditingController _branchLocation = TextEditingController();
 
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
-    _brancName = TextEditingController();
-    _branchLocation = TextEditingController();
-
-    super.initState();
-  }
 
   @override
   void dispose() {
