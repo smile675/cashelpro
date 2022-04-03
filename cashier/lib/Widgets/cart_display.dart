@@ -1,6 +1,5 @@
 // cartscreen > will go to different place later
 import 'package:cashier/Widgets/cart_item.dart';
-import 'package:cashier/models/branch_model.dart';
 
 import 'package:cashier/providers/cart_providers.dart';
 

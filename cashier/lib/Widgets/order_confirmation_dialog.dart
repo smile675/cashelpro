@@ -92,6 +92,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             _isCard = false;
                             _other = false;
                             _paymentTerm = 'Cash';
+                            _readyToSubmit = false;
+                            _paidAmount = 0.00;
                           });
                         },
                         child: Container(
@@ -110,6 +112,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             _isCard = true;
                             _other = false;
                             _paymentTerm = 'Card';
+                            _readyToSubmit = false;
+                            _paidAmount = 0.00;
                           });
                         },
                         child: Container(
@@ -128,6 +132,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             _isCard = false;
                             _other = true;
                             _paymentTerm = 'Other';
+                            _readyToSubmit = false;
+                            _paidAmount = 0.00;
                           });
                         },
                         child: Container(
