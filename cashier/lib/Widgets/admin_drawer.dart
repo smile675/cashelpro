@@ -1,4 +1,5 @@
 import 'package:cashier/screens/common_screens/home.dart';
+import 'package:cashier/screens/common_screens/user_manual.dart';
 import 'package:flutter/material.dart';
 
 class AdminDrawer extends StatelessWidget {
@@ -29,6 +30,18 @@ class AdminDrawer extends StatelessWidget {
             child: const ListTile(
               title: Text('Get Support'),
               leading: Icon(Icons.info_outline),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const UserManual(
+                        isAdmin: true,
+                      )));
+            },
+            child: const ListTile(
+              title: Text('User Manual'),
+              leading: Icon(Icons.menu_book),
             ),
           ),
         ],

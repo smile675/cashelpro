@@ -9,6 +9,8 @@ import '../screens/branch_screens/daily_reports.dart';
 import '../screens/branch_screens/monthly_reports.dart.dart';
 import 'package:intl/intl.dart';
 
+import '../screens/common_screens/user_manual.dart';
+
 class BranchDrawer extends StatelessWidget {
   const BranchDrawer({
     Key? key,
@@ -93,6 +95,21 @@ class BranchDrawer extends StatelessWidget {
                     title: Text('Search Invoice'),
                     leading: Icon(
                       Icons.search,
+                      color: Colors.teal,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const UserManual(
+                              isAdmin: false,
+                            )));
+                  },
+                  child: const ListTile(
+                    title: Text('User Manual'),
+                    leading: Icon(
+                      Icons.menu_book,
                       color: Colors.teal,
                     ),
                   ),

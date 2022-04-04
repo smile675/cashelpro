@@ -34,12 +34,26 @@ class FireStoreMethods {
         categoryID: categoryID,
       );
 
-      _firestore.collection('products').doc(productID).set(product.toJson());
+      _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('products')
+          .doc(productID)
+          .set(product.toJson());
+
+      //_firestore.collection('products').doc(productID).set(product.toJson());
 
       _firestore
-          .collection('category')
+          .collection('company')
+          .doc(companyKey)
+          .collection('categories')
           .doc(categoryID)
           .update({'itemCount': FieldValue.increment(1)});
+
+      // _firestore
+      //     .collection('category')
+      //     .doc(categoryID)
+      //     .update({'itemCount': FieldValue.increment(1)});
 
       res = 'success';
     } catch (err) {
@@ -58,7 +72,15 @@ class FireStoreMethods {
         companyKey: companyKey,
         itemCount: 0,
       );
-      _firestore.collection('category').doc(categoryId).set(category.toJson());
+
+      _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('categories')
+          .doc(categoryId)
+          .set(category.toJson());
+
+      // _firestore.collection('category').doc(categoryId).set(category.toJson());
       res = 'success';
     } catch (err) {
       res = err.toString();
@@ -69,9 +91,15 @@ class FireStoreMethods {
   Future<List<Category>> getCategoryList(String companyKey) async {
     final _firestore = FirebaseFirestore.instance;
     QuerySnapshot<Map<String, dynamic>> _categoryList = await _firestore
-        .collection('category')
-        .where('companyKey', isEqualTo: companyKey)
+        .collection('company')
+        .doc(companyKey)
+        .collection('categories')
         .get();
+
+    // await _firestore
+    //     .collection('category')
+    //     .where('companyKey', isEqualTo: companyKey)
+    //     .get();
 
     return _categoryList.docs.isNotEmpty
         ? _categoryList.docs.map((e) => Category.fromSnap(e)).toList()
@@ -81,9 +109,15 @@ class FireStoreMethods {
   Future<List<Products>> getProductList(String companyKey) async {
     final _firestore = FirebaseFirestore.instance;
     QuerySnapshot<Map<String, dynamic>> _productList = await _firestore
+        .collection('company')
+        .doc(companyKey)
         .collection('products')
-        .where('companyKey', isEqualTo: companyKey)
         .get();
+
+    //  await _firestore
+    //   .collection('products')
+    //   .where('companyKey', isEqualTo: companyKey)
+    //   .get();
 
     return _productList.docs.isNotEmpty
         ? _productList.docs.map((e) => Products.fromSnap(e)).toList()
@@ -96,10 +130,16 @@ class FireStoreMethods {
       String companyKey, String categoryId) async {
     final _firestore = FirebaseFirestore.instance;
     QuerySnapshot<Map<String, dynamic>> _productList = await _firestore
+        .collection('company')
+        .doc(companyKey)
         .collection('products')
-        .where('companyKey', isEqualTo: companyKey)
         .where('categoryID', isEqualTo: categoryId)
         .get();
+    // await _firestore
+    // .collection('products')
+    // .where('companyKey', isEqualTo: companyKey)
+    // .where('categoryID', isEqualTo: categoryId)
+    // .get();
 
     return _productList.docs.isNotEmpty
         ? _productList.docs.map((e) => Products.fromSnap(e)).toList()

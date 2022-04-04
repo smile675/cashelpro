@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FireStoreUpdateDeleteMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final companyKey = FirebaseAuth.instance.currentUser!.uid;
 
   // Future<void> deleteReqStock(String id) async {
   //   try {
@@ -15,9 +18,17 @@ class FireStoreUpdateDeleteMethods {
 // delte a product using product Id----->
   Future<void> deleteProduct(String id, String categoryID) async {
     try {
-      await _firestore.collection('products').doc(id).delete();
+      await _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('products')
+          .doc(id)
+          .delete();
+      // await _firestore.collection('products').doc(id).delete();
       _firestore
-          .collection('category')
+          .collection('company')
+          .doc(companyKey)
+          .collection('categories')
           .doc(categoryID)
           .update({'itemCount': FieldValue.increment(-1)});
     } catch (e) {
@@ -28,7 +39,12 @@ class FireStoreUpdateDeleteMethods {
   // delete a category using category Id ----->
   Future<void> deleteCategory(String id) async {
     try {
-      await _firestore.collection('category').doc(id).delete();
+      await _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('categories')
+          .doc(id)
+          .delete();
     } catch (e) {
       // nothing to do for now
     }
@@ -43,7 +59,12 @@ class FireStoreUpdateDeleteMethods {
     String newTitle,
   ) async {
     try {
-      await _firestore.collection('products').doc(id).update({
+      await _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('products')
+          .doc(id)
+          .update({
         'title': newTitle,
       });
     } catch (e) {
@@ -56,7 +77,12 @@ class FireStoreUpdateDeleteMethods {
     String newSubtitle,
   ) async {
     try {
-      await _firestore.collection('products').doc(id).update({
+      await _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('products')
+          .doc(id)
+          .update({
         'subtitle': newSubtitle,
       });
     } catch (e) {
@@ -69,7 +95,12 @@ class FireStoreUpdateDeleteMethods {
     double newPrice,
   ) async {
     try {
-      await _firestore.collection('products').doc(id).update({
+      await _firestore
+          .collection('company')
+          .doc(companyKey)
+          .collection('products')
+          .doc(id)
+          .update({
         'price': newPrice,
       });
     } catch (e) {
