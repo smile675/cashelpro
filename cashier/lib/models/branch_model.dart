@@ -8,6 +8,7 @@ class Branch {
   final String branchName;
   final String branchLocation;
   final String companyKey;
+  final int activityStatus;
 
   Branch({
     required this.email,
@@ -16,6 +17,7 @@ class Branch {
     required this.value,
     required this.uid,
     required this.companyKey,
+    required this.activityStatus,
   });
 
   static Branch fromSnap(DocumentSnapshot snap) {
@@ -28,6 +30,7 @@ class Branch {
       value: snapshot['value'],
       uid: snapshot['uid'],
       companyKey: snapshot['companyKey'],
+      activityStatus: snapshot['activity_status'],
     );
   }
 
@@ -38,5 +41,14 @@ class Branch {
         'value': value,
         'uid': uid,
         'companyKey': companyKey,
+        'activity_status': activityStatus,
       };
 }
+
+
+/*
+activity status: 0 : deactivate branch.
+activity status: 1 : active branch.
+activity status: 2 : payment pending [1 week] branch.
+
+ */

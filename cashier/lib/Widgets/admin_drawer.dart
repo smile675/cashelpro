@@ -9,6 +9,7 @@ class AdminDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Branch _branch = Provider.of<BranchProvider>(context).getBranch;
     return Drawer(
       child: ListView(
         children: [
@@ -26,7 +27,26 @@ class AdminDrawer extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Get Support'),
+                      content: const Text(
+                          'Please send an email to us explaining what support you need. If you face any issues using the app please explain briefly.\nThank you.\nSupport Email: angred.ismail@gmail.com'),
+                      actions: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.close),
+                          label: const Text('Close'),
+                        ),
+                      ],
+                    );
+                  });
+            },
             child: const ListTile(
               title: Text('Get Support'),
               leading: Icon(Icons.info_outline),
@@ -44,6 +64,17 @@ class AdminDrawer extends StatelessWidget {
               leading: Icon(Icons.menu_book),
             ),
           ),
+          // _branch.email == 'angred.ismail@gmail.com'
+          //     ? InkWell(
+          //         onTap: () {
+          //           Navigator.of(context).push(MaterialPageRoute(
+          //               builder: (context) => const ManageUsers()));
+          //         },
+          //         child: const ListTile(
+          //             title: Text('Manage User'),
+          //             leading: Icon(Icons.precision_manufacturing_outlined)),
+          //       )
+          //     : const Text(''),
         ],
       ),
     );

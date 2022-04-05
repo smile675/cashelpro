@@ -30,6 +30,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? _value;
+  int? _activityStatus;
 
   @override
   void initState() {
@@ -45,6 +46,8 @@ class _HomePageState extends State<HomePage> {
         .get();
     setState(() {
       _value = (snap.data() as Map<String, dynamic>)['value'];
+      _activityStatus =
+          (snap.data() as Map<String, dynamic>)['activity_status'];
     });
   }
 
@@ -258,11 +261,29 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(
                           color: Colors.redAccent, fontWeight: FontWeight.bold),
                     )),
+                _activityStatus != null
+                    ? _status(_activityStatus!)
+                    : const Text('waiting...'),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Text _status(int code) {
+    String status = 'some error';
+    if (code == 0) {
+      status = 'Account inactive';
+    } else if (code == 1) {
+      status = 'Account active';
+    } else if (code == 2) {
+      status = 'Active for limited time';
+    }
+    return Text(
+      status,
+      style: const TextStyle(color: Colors.teal),
     );
   }
 }

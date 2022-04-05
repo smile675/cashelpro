@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Cashelpro',
         theme: ThemeData(
           primarySwatch: Colors.teal,
         ),
