@@ -20,9 +20,9 @@ class ProductListAdmin extends StatefulWidget {
 }
 
 class _ProductListAdminState extends State<ProductListAdmin> {
-  TextEditingController _newTitleController = TextEditingController();
-  TextEditingController _newSubtitleController = TextEditingController();
-  TextEditingController _newPriceController = TextEditingController();
+  final TextEditingController _newTitleController = TextEditingController();
+  final TextEditingController _newSubtitleController = TextEditingController();
+  final TextEditingController _newPriceController = TextEditingController();
 
   @override
   void initState() {
@@ -47,6 +47,7 @@ class _ProductListAdminState extends State<ProductListAdmin> {
 
   bool _productLoaded = false;
   late List<Products> _products;
+  late int _branchStatus;
 
   Future<void> refreshProducts() async {
     DocumentSnapshot snap = await FirebaseFirestore.instance
@@ -55,12 +56,15 @@ class _ProductListAdminState extends State<ProductListAdmin> {
         .get();
     final _branchCompanyKey =
         (snap.data() as Map<String, dynamic>)['companyKey'];
+    int _gotBranchStatus =
+        (snap.data() as Map<String, dynamic>)['activity_status'];
 
     List<Products> _dataProductList =
         await FireStoreMethods().getProductList(_branchCompanyKey);
     setState(() {
       _products = _dataProductList;
       _productLoaded = true;
+      _branchStatus = _gotBranchStatus;
     });
   }
 
@@ -78,7 +82,11 @@ class _ProductListAdminState extends State<ProductListAdmin> {
         centerTitle: true,
         title: const Text('Products'),
         actions: [
-          IconButton(onPressed: goAddProductScreen, icon: const Icon(Icons.add))
+          _productLoaded
+              ? IconButton(
+                  onPressed: _branchStatus == 0 ? null : goAddProductScreen,
+                  icon: const Icon(Icons.add))
+              : const Text('')
         ],
       ),
       body: _productLoaded
@@ -88,120 +96,147 @@ class _ProductListAdminState extends State<ProductListAdmin> {
                     image: AssetImage(background), fit: BoxFit.cover),
               ),
               padding: const EdgeInsets.all(20),
-              child: _products.isNotEmpty
+              child: _branchStatus == 0
                   ? ListView.builder(
-                      itemCount: _products.length,
+                      itemCount: demoProducts.length,
                       itemBuilder: (context, index) {
-                        String _productTitle = _products[index].title;
-                        String _productSubTitle = _products[index].subTitle;
-                        String _productCategory = _products[index].categoryName;
-                        String _productPrice =
-                            '${_company.currencyCode} ${(_products[index].price).toStringAsFixed(2)}';
-                        String _productId = _products[index].id;
-                        String _productCategoryID = _products[index].categoryID;
+                        return Card(
+                          color: Colors.white.withOpacity(0.8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              radius: 15,
+                              child: Text((index + 1).toString()),
+                            ),
+                            title: Text(demoProducts[index]['Title']),
+                            subtitle: Text(
+                                'Category: ${demoProducts[index]['category']}'),
+                            trailing: Text(
+                                '${_company.currencyCode} ${(demoProducts[index]['Price']).toStringAsFixed(2)}'),
+                          ),
+                        );
+                      })
+                  : _products.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: _products.length,
+                          itemBuilder: (context, index) {
+                            String _productTitle = _products[index].title;
+                            String _productSubTitle = _products[index].subTitle;
+                            String _productCategory =
+                                _products[index].categoryName;
+                            String _productPrice =
+                                '${_company.currencyCode} ${(_products[index].price).toStringAsFixed(2)}';
+                            String _productId = _products[index].id;
+                            String _productCategoryID =
+                                _products[index].categoryID;
 
-                        return Stack(
-                          alignment: Alignment.topRight,
-                          children: [
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    radius: 15,
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.black,
-                                    child: Text(
-                                      (index + 1).toString(),
+                            return Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 15,
+                                        foregroundColor: Colors.white,
+                                        backgroundColor: Colors.black,
+                                        child: Text(
+                                          (index + 1).toString(),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        _productTitle,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      trailing: Text(_productPrice),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(_productSubTitle),
+                                          Text('Category: $_productCategory'),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  title: Text(
-                                    _productTitle,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  trailing: Text(_productPrice),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(_productSubTitle),
-                                      Text('Category: $_productCategory'),
-                                    ],
                                   ),
                                 ),
-                              ),
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          actionsAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          title: Text(_productTitle),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(_productSubTitle),
-                                              Text(
-                                                  'Category: $_productCategory'),
-                                              Text('Price: $_productPrice')
-                                            ],
-                                          ),
-                                          actions: [
-                                            ElevatedButton.icon(
-                                                style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.red)),
-                                                onPressed: () {
-                                                  FireStoreUpdateDeleteMethods()
-                                                      .deleteProduct(_productId,
-                                                          _productCategoryID);
+                                IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              actionsAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              title: Text(_productTitle),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(_productSubTitle),
+                                                  Text(
+                                                      'Category: $_productCategory'),
+                                                  Text('Price: $_productPrice')
+                                                ],
+                                              ),
+                                              actions: [
+                                                ElevatedButton.icon(
+                                                    style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all(Colors
+                                                                    .red)),
+                                                    onPressed: () {
+                                                      FireStoreUpdateDeleteMethods()
+                                                          .deleteProduct(
+                                                              _productId,
+                                                              _productCategoryID);
 
-                                                  Navigator.pop(context);
-                                                  refreshProducts();
-                                                },
-                                                icon: const Icon(Icons.delete),
-                                                label: const Text('Delete')),
-                                            ElevatedButton.icon(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  updateProductBottomSheet(
-                                                      context,
-                                                      _productTitle,
-                                                      _productId,
-                                                      _productSubTitle,
-                                                      _productPrice);
-                                                },
-                                                icon: const Icon(Icons.edit),
-                                                label: const Text('Edit')),
-                                            IconButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                icon: const Icon(Icons.close))
-                                          ],
-                                        );
-                                      });
-                                },
-                                icon: const Icon(Icons.more_horiz))
-                          ],
-                        );
-                      },
-                    )
-                  : const Center(
-                      child: Text(
-                        'Note Products Added Yet!',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                                                      Navigator.pop(context);
+                                                      refreshProducts();
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    label:
+                                                        const Text('Delete')),
+                                                ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                      updateProductBottomSheet(
+                                                          context,
+                                                          _productTitle,
+                                                          _productId,
+                                                          _productSubTitle,
+                                                          _productPrice);
+                                                    },
+                                                    icon:
+                                                        const Icon(Icons.edit),
+                                                    label: const Text('Edit')),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    icon:
+                                                        const Icon(Icons.close))
+                                              ],
+                                            );
+                                          });
+                                    },
+                                    icon: const Icon(Icons.more_horiz))
+                              ],
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            'Note Products Added Yet!',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
             )
           : Center(
               child: ElevatedButton.icon(

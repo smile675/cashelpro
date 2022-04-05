@@ -52,6 +52,7 @@ class _CategoryListState extends State<CategoryList> {
   bool _categoryLoaded = false;
 
   late List<Category> _category;
+  late int _branchStatus;
 
   Future<void> refreshCategory() async {
     DocumentSnapshot snap = await FirebaseFirestore.instance
@@ -60,11 +61,14 @@ class _CategoryListState extends State<CategoryList> {
         .get();
     final _branchCompanyKey =
         (snap.data() as Map<String, dynamic>)['companyKey'];
+    int _gotbranchStatus =
+        (snap.data() as Map<String, dynamic>)['activity_status'];
 
     List<Category> _dataCategoryList =
         await FireStoreMethods().getCategoryList(_branchCompanyKey);
     setState(() {
       _category = _dataCategoryList;
+      _branchStatus = _gotbranchStatus;
       _categoryLoaded = true;
     });
   }
@@ -77,67 +81,75 @@ class _CategoryListState extends State<CategoryList> {
         centerTitle: true,
         title: const Text('Categories'),
         actions: [
-          IconButton(
-              onPressed: () {
-                showModalBottomSheet<void>(
-                  isScrollControlled: true,
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Container(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: TextField(
-                                  controller: _categoryTitle,
-                                  autocorrect: false,
-                                  decoration: const InputDecoration(
-                                    label: Text('Category Title'),
+          _categoryLoaded
+              ? IconButton(
+                  onPressed: () {
+                    _branchStatus == 0
+                        ? null
+                        : showModalBottomSheet<void>(
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                  padding: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom,
                                   ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  _categoryTitle.text.isEmpty
-                                      ? null
-                                      : createCategory();
-                                  refreshCategory();
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  color: Colors.teal,
-                                  padding: const EdgeInsets.all(15),
-                                  child: _isLoading
-                                      ? const Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      : const Text(
-                                          '<Add Category\\>',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                          textAlign: TextAlign.center,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Center(
+                                          child: TextField(
+                                            controller: _categoryTitle,
+                                            autocorrect: false,
+                                            decoration: const InputDecoration(
+                                              label: Text('Category Title'),
+                                            ),
+                                          ),
                                         ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ));
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            _categoryTitle.text.isEmpty
+                                                ? null
+                                                : createCategory();
+                                            refreshCategory();
+                                          },
+                                          child: Container(
+                                            width: double.infinity,
+                                            color: Colors.teal,
+                                            padding: const EdgeInsets.all(15),
+                                            child: _isLoading
+                                                ? const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  )
+                                                : const Text(
+                                                    '<Add Category\\>',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ));
+                            },
+                          );
                   },
-                );
-              },
-              icon: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ))
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ))
+              : const Text('')
         ],
       ),
       body: _categoryLoaded
@@ -147,83 +159,104 @@ class _CategoryListState extends State<CategoryList> {
                     image: AssetImage(background), fit: BoxFit.cover),
               ),
               padding: const EdgeInsets.all(20),
-              child: _category.isNotEmpty
+              child: _branchStatus == 0
                   ? ListView.builder(
-                      itemCount: _category.length,
+                      itemCount: democategory.length,
                       itemBuilder: (context, index) {
-                        String _categoryName = _category[index].categoryTitle;
-                        int _itemCount = _category[index].itemCount;
-                        String _categoryID = _category[index].categoryId;
                         return Card(
-                          color: Colors.white.withOpacity(0.8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.teal,
-                              foregroundColor: Colors.white,
-                              radius: 15,
-                              child: Text((index + 1).toString()),
-                            ),
-                            title: Text(_categoryName),
-                            subtitle: Text('Product Count: $_itemCount'),
-                            trailing: _itemCount > 0
-                                ? const Icon(Icons.lock)
-                                : IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              actionsAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              title: const Text(
-                                                  'Confirmation of Action!'),
-                                              content: const Text(
-                                                  'Are you sure about deleting this category??'),
-                                              actions: [
-                                                ElevatedButton.icon(
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.red),
-                                                  ),
-                                                  onPressed: () {
-                                                    FireStoreUpdateDeleteMethods()
-                                                        .deleteCategory(
-                                                            _categoryID);
-                                                    Navigator.pop(context);
-                                                    refreshCategory();
-                                                  },
-                                                  icon:
-                                                      const Icon(Icons.delete),
-                                                  label: const Text('Yes'),
-                                                ),
-                                                ElevatedButton.icon(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  icon:
-                                                      const Icon(Icons.cancel),
-                                                  label: const Text('No'),
-                                                ),
-                                              ],
-                                            );
-                                          });
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                  ),
+                            color: Colors.white.withOpacity(0.8),
+                            child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.teal,
+                                  foregroundColor: Colors.white,
+                                  radius: 15,
+                                  child: Text((index + 1).toString()),
+                                ),
+                                subtitle: Text(
+                                    'Product count: ${democategory[index]['itemCount']}'),
+                                title: Text(
+                                    democategory[index]['categoryTitle'])));
+                      })
+                  : _category.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: _category.length,
+                          itemBuilder: (context, index) {
+                            String _categoryName =
+                                _category[index].categoryTitle;
+                            int _itemCount = _category[index].itemCount;
+                            String _categoryID = _category[index].categoryId;
+                            return Card(
+                              color: Colors.white.withOpacity(0.8),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.teal,
+                                  foregroundColor: Colors.white,
+                                  radius: 15,
+                                  child: Text((index + 1).toString()),
+                                ),
+                                title: Text(_categoryName),
+                                subtitle: Text('Product Count: $_itemCount'),
+                                trailing: _itemCount > 0
+                                    ? const Icon(Icons.lock)
+                                    : IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  actionsAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  title: const Text(
+                                                      'Confirmation of Action!'),
+                                                  content: const Text(
+                                                      'Are you sure about deleting this category??'),
+                                                  actions: [
+                                                    ElevatedButton.icon(
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all(
+                                                                    Colors.red),
+                                                      ),
+                                                      onPressed: () {
+                                                        FireStoreUpdateDeleteMethods()
+                                                            .deleteCategory(
+                                                                _categoryID);
+                                                        Navigator.pop(context);
+                                                        refreshCategory();
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.delete),
+                                                      label: const Text('Yes'),
+                                                    ),
+                                                    ElevatedButton.icon(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.cancel),
+                                                      label: const Text('No'),
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                              ),
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            'No Category Added Yet!',
+                            style: TextStyle(color: Colors.white),
                           ),
-                        );
-                      },
-                    )
-                  : const Center(
-                      child: Text(
-                        'No Category Added Yet!',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                        ),
             )
           : Center(
               child: ElevatedButton.icon(

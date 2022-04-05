@@ -37,7 +37,7 @@ class Authmethods {
           branchLocation: hqLocation,
           value: 1,
           uid: cred.user!.uid,
-          activityStatus: 2,
+          activityStatus: 0,
         );
 
         await _firestore
@@ -99,7 +99,7 @@ class Authmethods {
           branchLocation: branchLocation,
           value: notAdmin,
           uid: cred.user!.uid,
-          activityStatus: 2,
+          activityStatus: 0,
         );
 
         await _firestore
@@ -169,8 +169,6 @@ class Authmethods {
 
     return Branch.fromSnap(snap);
   }
-
-  // TODO: get company details where company.document id = brnach.company key...
 
   Future<Company> getCompamy() async {
     User currentUser = _auth.currentUser!;
