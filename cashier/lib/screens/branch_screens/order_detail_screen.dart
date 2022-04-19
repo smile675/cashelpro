@@ -2,7 +2,7 @@ import 'package:cashier/models/branch_model.dart';
 import 'package:cashier/models/order_items_model.dart';
 import 'package:cashier/providers/branch_provider.dart';
 import 'package:cashier/resourses/local_database_methods.dart';
-import 'package:esc_pos_bluetooth/esc_pos_bluetooth.dart';
+//import 'package:esc_pos_bluetooth/esc_pos_bluetooth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,7 +12,9 @@ import '../../Saving_Printing_Methods/thermalprint/printing_page_create.dart';
 import '../../models/company_model.dart';
 import '../../models/invoice_model.dart';
 import '../../providers/company_provider.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
+//import 'package:esc_pos_utils/esc_pos_utils.dart';
+
+import 'package:drago_pos_printer/drago_pos_printer.dart';
 
 class OrderDetails extends StatefulWidget {
   final String refKey;
@@ -27,26 +29,26 @@ class OrderDetails extends StatefulWidget {
 }
 
 class _OrderDetailsState extends State<OrderDetails> {
-  PrinterBluetoothManager printerManager = PrinterBluetoothManager();
+  // PrinterBluetoothManager printerManager = PrinterBluetoothManager();
   late List<Invoice> _invoice;
   late List<OrderItems> _orderItems;
   bool loading = false;
 
-  PaperSize _myPaperSize = PaperSize.mm58;
-  PrinterBluetooth? _myPrinter;
+  // PaperSize _myPaperSize = PaperSize.mm58;
+  // PrinterBluetooth? _myPrinter;
 
-  List<PrinterBluetooth> _printers = [];
+  // List<PrinterBluetooth> _printers = [];
   bool _printerCalled = false;
+
+  List<BluetoothPrinter> _printers = [];
+  int paperWidth = PaperSizeWidth.mm58;
+  int charPerLine = PaperSizeMaxPerLine.mm58;
+  BluetoothPrinterManager? _manager;
 
   @override
   void initState() {
     refreshOnceInvoice();
     super.initState();
-    printerManager.scanResults.listen((devices) async {
-      setState(() {
-        _printers = devices;
-      });
-    });
   }
 
   Future<void> refreshOnceInvoice() async {
@@ -61,26 +63,75 @@ class _OrderDetailsState extends State<OrderDetails> {
     });
   }
 
-  void _startScan() {
+  void _scan() async {
     setState(() {
       _printers = [];
     });
 
-    printerManager.startScan(const Duration(seconds: 4));
+    var printers = await BluetoothPrinterManager.discover();
+
+    setState(() {
+      _printers = printers;
+      _printerCalled = true;
+    });
   }
 
-  void _stopScan() {
-    printerManager.stopScan();
+  Future _connect(BluetoothPrinter printer) async {
+    var profile = await CapabilityProfile.load();
+    var manager =
+        BluetoothPrinterManager(printer, paperWidth, charPerLine, profile);
+    print('--------------connected----------------');
+
+    setState(() {
+      _manager = manager;
+      printer.connected = true;
+    });
+  }
+
+  void _startPrint(BluetoothPrinter printer) async {
+    print(printer.address);
+    await _connect(printer);
+    late List<int> data;
+    Branch _branch =
+        Provider.of<BranchProvider>(context, listen: false).getBranch;
+    Company _company =
+        Provider.of<CompanyProvider>(context, listen: false).getCompany;
+    data = await PrintInvoice().getInvoicePosBuyte(
+        paperSize: _manager!.paperSizeWidthMM,
+        maxperLine: _manager!.maxPerLine,
+        profile: _manager!.profile,
+        companyName: _company.companyName,
+        companyEmail: _company.companyEmail,
+        branchName: _branch.branchName,
+        branchEmail: _branch.email,
+        invPrefix: _invoice[0].invPrefix,
+        invID: _invoice[0].id as int,
+        invDate: _invoice[0].invDay,
+        invAmount: _invoice[0].amount,
+        currencyCode: _company.currencyCode,
+        orderItems: _orderItems,
+        fullAddress: _company.fullAddress,
+        paymentTerm: _invoice[0].paymentTerm,
+        paidAmount: _invoice[0].paidAmount,
+        changeAmount: _invoice[0].changeAmount,
+        cardRef: _invoice[0].cardReference,
+        paymentRef: _invoice[0].paymentReference);
+
+    if (_manager != null) {
+      if (!await _manager!.checkConnected()) await _manager!.connect();
+      print("isConnected ${_manager!.isConnected}");
+      _manager!.writeBytes(data, isDisconnect: true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Branch _branch = Provider.of<BranchProvider>(context).getBranch;
+    Company _company = Provider.of<CompanyProvider>(context).getCompany;
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    Branch _branch = Provider.of<BranchProvider>(context).getBranch;
-    Company _company = Provider.of<CompanyProvider>(context).getCompany;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,10 +155,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                 )
               : TextButton.icon(
                   onPressed: () {
-                    setState(() {
-                      _printerCalled = true;
-                    });
-                    _startScan();
+                    _scan();
                   },
                   icon: const Icon(
                     Icons.print_rounded,
@@ -299,11 +347,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 InkWell(
                                   onTap: () {
                                     setState(() {
-                                      _myPaperSize = PaperSize.mm58;
+                                      paperWidth = PaperSizeWidth.mm58;
+                                      charPerLine = PaperSizeMaxPerLine.mm58;
                                     });
                                   },
                                   child: Container(
-                                    color: _myPaperSize == PaperSize.mm58
+                                    color: paperWidth == PaperSizeWidth.mm58
                                         ? Colors.teal
                                         : Colors.grey,
                                     child: const Padding(
@@ -315,11 +364,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 InkWell(
                                   onTap: () {
                                     setState(() {
-                                      _myPaperSize = PaperSize.mm80;
+                                      paperWidth = PaperSizeWidth.mm80;
+                                      charPerLine = PaperSizeMaxPerLine.mm80;
                                     });
                                   },
                                   child: Container(
-                                    color: _myPaperSize == PaperSize.mm80
+                                    color: paperWidth == PaperSizeWidth.mm80
                                         ? Colors.teal
                                         : Colors.grey,
                                     child: const Padding(
@@ -338,37 +388,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       itemBuilder: (contex, index) {
                                         return InkWell(
                                           onTap: () {
-                                            setState(() {
-                                              _myPrinter = _printers[index];
-                                            });
-
-                                            PrintInvoice().print(
-                                              printer: _myPrinter!,
-                                              companyName: _company.companyName,
-                                              companyEmail:
-                                                  _company.companyEmail,
-                                              branchName: _branch.branchName,
-                                              branchEmail: _branch.email,
-                                              currencyCode:
-                                                  _company.currencyCode,
-                                              invPrefix: _invoice[0].invPrefix,
-                                              invAmount: _invoice[0].amount,
-                                              invDate: _invoice[0].invDay,
-                                              invID: _invoice[0].id as int,
-                                              orderItems: _orderItems,
-                                              fullAddress: _company.fullAddress,
-                                              paymentTerm:
-                                                  _invoice[0].paymentTerm,
-                                              paidAmount:
-                                                  _invoice[0].paidAmount,
-                                              changeAmount:
-                                                  _invoice[0].changeAmount,
-                                              cardRef:
-                                                  _invoice[0].cardReference,
-                                              paymentRef:
-                                                  _invoice[0].paymentReference,
-                                              paperSize: _myPaperSize,
-                                            );
+                                            _startPrint(_printers[index]);
                                           },
                                           child: ListTile(
                                             title: Text(_printers[index].name!),

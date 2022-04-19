@@ -1,12 +1,15 @@
-import 'package:esc_pos_bluetooth/esc_pos_bluetooth.dart';
+import 'package:drago_pos_printer/drago_pos_printer.dart';
 
 import '../../models/order_items_model.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 class PrintInvoice {
-  PrinterBluetoothManager printerManager = PrinterBluetoothManager();
-  void print({
-    required PrinterBluetooth printer,
+  int? _paperSizeWidthMM;
+  int? _maxPerLine;
+  CapabilityProfile? _profile;
+  Future<List<int>> getInvoicePosBuyte({
+    required int paperSize,
+    required int maxperLine,
+    CapabilityProfile? profile,
     required String companyName,
     required String companyEmail,
     required String branchName,
@@ -23,56 +26,14 @@ class PrintInvoice {
     required double changeAmount,
     required String cardRef,
     required String paymentRef,
-    required PaperSize paperSize,
+    String name = 'default',
   }) async {
-    printerManager.selectPrinter(printer);
-    PaperSize paper = paperSize;
-    final profile = await CapabilityProfile.load();
-
-    await printerManager.printTicket((await receipt(
-      paper: paper,
-      profile: profile,
-      branchEmail: branchEmail,
-      branchName: branchName,
-      currencyCode: currencyCode,
-      invDate: invDate,
-      companyEmail: companyEmail,
-      companyName: companyName,
-      invAmount: invAmount,
-      invID: invID,
-      invPrefix: invPrefix,
-      orderItems: orderItems,
-      fullAddress: fullAddress,
-      paidAmount: paidAmount,
-      changeAmount: changeAmount,
-      paymentTerm: paymentTerm,
-      cardRef: cardRef,
-      paymentRef: paymentRef,
-    )));
-  }
-
-  Future<List<int>> receipt({
-    required PaperSize paper,
-    required CapabilityProfile profile,
-    required String companyName,
-    required String companyEmail,
-    required String branchName,
-    required String branchEmail,
-    required String invPrefix,
-    required int invID,
-    required String invDate,
-    required double invAmount,
-    required String currencyCode,
-    required List<OrderItems> orderItems,
-    required String fullAddress,
-    required String paymentTerm,
-    required double paidAmount,
-    required double changeAmount,
-    required String cardRef,
-    required String paymentRef,
-  }) async {
-    final Generator ticket = Generator(paper, profile);
     List<int> bytes = [];
+    _profile = profile ?? (await CapabilityProfile.load(name: name));
+    _paperSizeWidthMM = paperSize;
+    _maxPerLine = maxperLine;
+    Generator ticket = Generator(_paperSizeWidthMM!, _maxPerLine!, _profile!);
+    bytes += ticket.reset();
 
     bytes += ticket.text(companyName,
         styles: const PosStyles(

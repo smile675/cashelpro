@@ -47,8 +47,9 @@ dependencies:
   pdf: ^3.7.2
   
   open_file: ^3.2.1
-  esc_pos_bluetooth: ^0.4.1
-  shared_preferences: ^2.0.13
+  drago_pos_printer: ^0.0.2
+  # esc_pos_bluetooth: ^0.4.1
+  # shared_preferences: ^2.0.13
   
  
   
