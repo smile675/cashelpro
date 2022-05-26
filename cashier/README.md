@@ -3,10 +3,18 @@
 A new Flutter project.
 
 ## Getting Started
+APP PURPOSE: A cashier app: used by salesman who take order, confirm payment, and confirm order. Finally, print receipt in thermal printer, and at the end of the day, print Daily/Monthly Sale Statement as PDF document.
 
-This project is a starting point for a Flutter application.
+APP CONFIG:
+User, Products, Company Profile Database: Firebase
+Invoice, Statement, Order Database: on device.
 
-A few resources to get you started if this is your first Flutter project:
+FUTURE PLAN:
+
+#1 Instead of printing receipt> share as pdf/image with the customer 
+#2 implement monthly/yearly subscriptions for user.   
+
+
 
 - [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
